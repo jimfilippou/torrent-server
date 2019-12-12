@@ -1,6 +1,6 @@
 # Custom
 db.json
-
+.idea/
 # Logs
 logs
 *.log
