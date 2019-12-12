@@ -1,0 +1,23 @@
+{
+  "name": "torrent-server",
+  "version": "0.0.1",
+  "description": "Server for the streaming platform",
+  "main": "index.js",
+  "repository": "https://github.com/jimfilippou/torrent-server.git",
+  "authors": [
+    "Θοδωρής Τσίγκανος 3160180",
+    "Δημήτρης Φιλίππου 3160253",
+    "Χρήστος Χαρμαντας 3160189"
+  ],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "devDependencies": {
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "lowdb": "^1.0.0"
+  }
+}
