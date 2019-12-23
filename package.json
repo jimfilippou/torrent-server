@@ -12,9 +12,12 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "ava"
   },
   "devDependencies": {
+    "ava": "^2.4.0",
+    "got": "^10.2.0"
   },
   "dependencies": {
     "express": "^4.17.1",

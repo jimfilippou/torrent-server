@@ -1,6 +1,7 @@
 # Custom
 db.json
 .idea/
+.vscode/
 # Logs
 logs
 *.log
