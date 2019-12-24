@@ -2,6 +2,7 @@ const express = require("express");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 
+// Sync database locally for demo purposes
 const adapter = new FileSync("db.json");
 const db = low(adapter);
 
@@ -11,11 +12,12 @@ db.defaults({ torrents: [], user: {} }).write();
 const app = express();
 const port = 3000;
 
+// Tests if the server is running
 app.get("/ping", function (req, res) {
     res.send("pong");
 });
 
-// Function for downloading torrent with magnet URL
+// Function for downloading torrent with magnet URI
 app.post("/magnet", function (req, res) {
     const torrentMagnet = "example";
     db.get("torrents")
@@ -29,4 +31,5 @@ app.get("/torrents", function (req, res) {
     res.json(torrents);
 });
 
+// Start the server
 app.listen(port, () => console.log(`App listening on port ${port}!`));
