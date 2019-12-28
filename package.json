@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "lowdb": "^1.0.0"
+    "lowdb": "^1.0.0",
+    "webtorrent": "^0.107.17"
   }
 }
