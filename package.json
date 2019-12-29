@@ -12,7 +12,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node index.js",
+    "start": "node src/index.js",
     "test": "ava"
   },
   "devDependencies": {
