@@ -1,10 +1,14 @@
 const express = require("express");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
+const WebTorrent = require("webtorrent");
 
 // Sync database locally for demo purposes
 const adapter = new FileSync("db.json");
 const db = low(adapter);
+
+//torrent client
+const client = new WebTorrent();
 
 // Set some defaults (required if your JSON file is empty)
 db.defaults({ torrents: [], user: {} }).write();
@@ -12,6 +16,8 @@ db.defaults({ torrents: [], user: {} }).write();
 const app = express();
 const port = 3000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false}));
 // Tests if the server is running
 app.get("/ping", function (req, res) {
     res.send("pong");
@@ -19,10 +25,17 @@ app.get("/ping", function (req, res) {
 
 // Function for downloading torrent with magnet URI
 app.post("/magnet", function (req, res) {
-    const torrentMagnet = "example";
+    const torrentMagnet = req.body.magnet;
+
+    client.add(torrentMagnet,{path: 'download_folder'},function(torrent){
+        torrent.on('done',function(){
+            console.log('finished');
+        });
+    });
     db.get("torrents")
         .push({ id: 1, title: "lowdb is awesome" })
         .write();
+	res.send("gotcha");
 });
 
 // Get all torrents
