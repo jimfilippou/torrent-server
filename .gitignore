@@ -2,6 +2,9 @@
 db.json
 .idea/
 .vscode/
+.nyc_output
+coverage
+
 # Logs
 logs
 *.log

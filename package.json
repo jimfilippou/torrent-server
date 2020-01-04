@@ -13,11 +13,12 @@
   "private": true,
   "scripts": {
     "start": "node src/index.js",
-    "test": "ava"
+    "test": "nyc ava"
   },
   "devDependencies": {
     "ava": "^2.4.0",
-    "got": "^10.2.0"
+    "got": "^10.2.0",
+    "nyc": "^15.0.0"
   },
   "dependencies": {
     "express": "^4.17.1",
