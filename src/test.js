@@ -14,12 +14,14 @@ test("Server should be running", async t => {
 
 
 test("Torrent should be downloaded via magnet", async t =>{
-    const response = await got.post(`${URL}/magnet`,{
+
+    const {body} = await got.post(`${URL}/magnet`, {
         json: {
-            magnet:'magnet:?xt=urn:btih:7fbc58e324b539bdda58c15bda3acd26b0d5fbd1&dn=Luis+Fonsi+-+Despacito+%28feat.+Daddy+Yankee%29&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969'
-        }
+            magnet:'magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent'
+        },
+        responseType: 'json'
     });
-    console.log(response.body);
-    const body = response.body;
+
+    t.is(body.ok, true);
 });
 

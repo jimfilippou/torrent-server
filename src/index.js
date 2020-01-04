@@ -17,7 +17,7 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false}));
+app.use(express.urlencoded({ extended: false }));
 // Tests if the server is running
 app.get("/ping", function (req, res) {
     res.send("pong");
@@ -25,17 +25,16 @@ app.get("/ping", function (req, res) {
 
 // Function for downloading torrent with magnet URI
 app.post("/magnet", function (req, res) {
-    const torrentMagnet = req.body.magnet;
 
-    client.add(torrentMagnet,{path: 'download_folder'},function(torrent){
-        torrent.on('done',function(){
+    const { magnet } = req.body;
+
+    client.add(magnet, { path: `${__dirname}/loot` }, function (torrent) {
+        torrent.on('done', function () {
             console.log('finished');
         });
     });
-    db.get("torrents")
-        .push({ id: 1, title: "lowdb is awesome" })
-        .write();
-	res.send("gotcha");
+
+    res.json({ ok: true });
 });
 
 // Get all torrents
