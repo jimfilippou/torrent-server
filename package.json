@@ -12,7 +12,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node src/index.js",
+    "start": "nodemon src/index.js",
     "test": "nyc --reporter=text ava",
     "coverage": "nyc --reporter=lcov --timeout=3000 ava"
   },
