@@ -16,6 +16,9 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.engine('pug', require('pug').__express);
+app.set('views', __dirname+'\\views');
+app.set('view engine', 'pug');
 // Add custom controllers to handlers
 app.use('/torrent', torrentController);
 

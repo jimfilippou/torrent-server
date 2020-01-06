@@ -12,7 +12,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node src/index.js",
+    "start": "nodemon src/index.js",
     "test": "nyc --reporter=text ava",
     "coverage": "nyc --reporter=lcov --timeout=3000 ava"
   },
@@ -23,7 +23,9 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "jade": "^1.11.0",
     "lowdb": "^1.0.0",
+    "pug": "^2.0.4",
     "webtorrent": "^0.107.17"
   }
 }
