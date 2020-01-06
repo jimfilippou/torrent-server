@@ -25,9 +25,10 @@ router.post("/magnet", function (req, res, next) {
             res.locals.filePath = filePath;
             console.log(process.env.BASE_URL);
 
-            res.render(__dirname+'\\video',{
-                base_url: process.env.BASE_URL
+            res.render('video',{
+                base_url: __dirname
             });
+            
             
         
         });
