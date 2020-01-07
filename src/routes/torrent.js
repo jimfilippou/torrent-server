@@ -1,42 +1,33 @@
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
+const {promisify} = require("util");
 const WebTorrent = require('webtorrent');
+const asyncHandler = require('express-async-handler');
 
-//torrent client
+// Create the torrent client
 const client = new WebTorrent();
 
+// Make promises
+promisify(client.add);
+
+// Initiate the router
 const router = express.Router();
 
-router.post("/magnet", function (req, res, next) {
+router.post("/download", asyncHandler(async function (req, res, next) {
 
     const { magnet } = req.body;
 
-    client.add(magnet, { path: `${__dirname}/loot` }, function (torrent) {
-        //selecting mp4 file
-        var file = torrent.files.find(function (file) {
-            return file.name.endsWith('.mp4')
-          });
-        var filePath = file.path;
-        torrent.on('done', function () {
-            console.log('finished');
+    const torrent = await client.add(magnet, { path: `${__dirname}/loot` });
 
-            //setting file path to use in next middleware
-            res.locals.filePath = filePath;
-            console.log(process.env.BASE_URL);
-
-            res.render('video',{
-                base_url: __dirname
-            });
-            
-            
-        
-        });
-
+    torrent.on("download", (bytes) => {
+        const percentage = Math.round(torrent.progress * 100 * 100) / 100
+        res.send(percentage);
     });
 
-    // res.json({ ok: true });
+    torrent.on("done", () => {
+        res.json({torrent});
+        res.end();
+    })
 
-});
+}));
 
 module.exports = router;
