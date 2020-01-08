@@ -7,9 +7,11 @@ util.promisify(fs.stat);
 
 const router = express.Router();
 
-router.post('/magnet', asyncHandler(async (req, res, next) => {
+router.get('/stream/:hash', asyncHandler(async (req, res, next) => {
 	
-	const file = res.locals.filePath;
+	// const file = res.locals.filePath;
+	// vres to path apo ti vash
+
 	const stat = await fs.stat(file);
 	
 	/* 

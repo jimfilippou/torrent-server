@@ -20,11 +20,12 @@ router.post("/download", asyncHandler(async function (req, res, next) {
 
     torrent.on("download", (bytes) => {
         const percentage = Math.round(torrent.progress * 100 * 100) / 100
-        res.send(percentage);
+        res.write(percentage.toString());
     });
 
     torrent.on("done", () => {
-        res.json({torrent});
+        // save on db.json
+        res.json({name: torrent.name});
         res.end();
     })
 
