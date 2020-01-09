@@ -1,9 +1,10 @@
 // Library imports
 const express = require("express");
-const Database = require("./utils/db");
-
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 // Initiate DB
-// const t = new Database().getInstance();
+const adapter = new FileSync('db.json')
+const db = low(adapter)
 
 // Route imports
 const torrentController = require("./routes/torrent");
@@ -16,6 +17,11 @@ const port = 3000;
 // Use middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+db.defaults({
+    torrents:[]
+})
+.write();
 
 app.engine('pug', require('pug').__express);
 app.set('views', __dirname+'\\views');
