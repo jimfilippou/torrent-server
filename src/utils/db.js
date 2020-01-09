@@ -8,15 +8,24 @@ class Database {
     db = undefined;
 
     constructor() {
-
-        console.log('Database initiated;');
-
-        // Sync database locally for demo purposes
+        // Sync database locally
         this.adapter = new FileSync("db.json");
         this.db = low(this.adapter);
+    }
 
+    start() {
         // Set some defaults (required if your JSON file is empty)
         this.db.defaults({ torrents: [], user: {} }).write();
+    }
+
+    addTorrent(torrent) {
+        this.db.get('torrents')
+            .push(torrent)
+            .write();
+    }
+
+    getTorrents() {
+        return this.db.get('torrents').read();
     }
 
 }

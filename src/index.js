@@ -1,13 +1,13 @@
-// Library imports
+const DatabaseService = require('./utils/db');
 const express = require("express");
-const Database = require("./utils/db");
 
-// Initiate DB
-// const t = new Database().getInstance();
-
-// Route imports
+// Routes
 const torrentController = require("./routes/torrent");
 const videoController = require("./routes/video");
+
+// Start the DB
+const Instance = new DatabaseService().getInstance();
+Instance.start();
 
 // Initiate express instance
 const app = express();
@@ -17,6 +17,7 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// @TODO Remove the following lines
 app.engine('pug', require('pug').__express);
 app.set('views', __dirname+'\\views');
 app.set('view engine', 'pug');
@@ -28,12 +29,6 @@ app.use('/video', videoController);
 // Tests if the server is running
 app.get("/ping", function (req, res) {
     res.send("pong");
-});
-
-// Get all torrents
-app.get("/torrents", function (req, res) {
-    const torrents = db.get("torrents").value();
-    res.json(torrents);
 });
 
 // Start the server
