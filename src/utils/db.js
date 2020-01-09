@@ -7,8 +7,7 @@ class Database {
     adapter = undefined;
     db = undefined;
 
-    constructor() {
-
+    constructor() {``
         console.log('Database initiated;');
 
         // Sync database locally for demo purposes
@@ -17,6 +16,16 @@ class Database {
 
         // Set some defaults (required if your JSON file is empty)
         this.db.defaults({ torrents: [], user: {} }).write();
+    }
+
+    addTorrent(torrent) {
+        this.db.get('torrents')
+            .push(torrent)
+            .write();
+    }
+
+    getTorrents() {
+        return this.db.get('torrents').read();
     }
 
 }

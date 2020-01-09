@@ -14,15 +14,17 @@
   "scripts": {
     "start": "node src/index.js",
     "nodemon": "nodemon src/index.js",
-    "test": "nyc --reporter=text ava",
+    "test": "nyc --reporter=text ava --verbose",
     "coverage": "nyc --reporter=lcov --timeout=3000 ava"
   },
   "devDependencies": {
     "ava": "^2.4.0",
+    "await-to-js": "^2.1.1",
     "got": "^10.2.0",
     "nyc": "^15.0.0"
   },
   "dependencies": {
+    "bluebird": "^3.7.2",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "jade": "^1.11.0",

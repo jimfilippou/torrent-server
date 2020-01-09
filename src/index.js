@@ -1,12 +1,6 @@
-// Library imports
 const express = require("express");
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-// Initiate DB
-const adapter = new FileSync('db.json');
-const db = low(adapter);
 
-// Route imports
+// Routes
 const torrentController = require("./routes/torrent");
 const videoController = require("./routes/video");
 
@@ -18,11 +12,7 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-db.defaults({
-    torrents:[]
-})
-.write();
-
+// @TODO Remove the following lines
 app.engine('pug', require('pug').__express);
 app.set('views', __dirname+'\\views');
 app.set('view engine', 'pug');
@@ -34,12 +24,6 @@ app.use('/video', videoController);
 // Tests if the server is running
 app.get("/ping", function (req, res) {
     res.send("pong");
-});
-
-// Get all torrents
-app.get("/torrents", function (req, res) {
-    const torrents = db.get("torrents").value();
-    res.json(torrents);
 });
 
 // Start the server
