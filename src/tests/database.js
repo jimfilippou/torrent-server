@@ -1,10 +1,15 @@
-const Database = require('../utils/db');
 const { to } = require('await-to-js');
+const DatabaseService = require('../utils/db');
 const Promise = require('bluebird');
 const test = require('ava');
 const fs = require('fs');
 
 fs.readFileAsync = Promise.promisify(fs.readFile);
+
+test.before((t) => {
+    const db = new DatabaseService().getInstance();
+    db.start();
+})
 
 test("database file should exist", t => {
     const file = fs.existsSync('./db.json');
@@ -22,5 +27,9 @@ test("database should contain predefined data", async t => {
     data = JSON.parse(data);
     t.deepEqual(data, schema);
 })
+
+test.after( t => {
+
+});
 
 

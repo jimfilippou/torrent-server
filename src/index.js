@@ -1,8 +1,13 @@
+const DatabaseService = require('./utils/db');
 const express = require("express");
 
 // Routes
 const torrentController = require("./routes/torrent");
 const videoController = require("./routes/video");
+
+// Start the DB
+const Instance = new DatabaseService().getInstance();
+Instance.start();
 
 // Initiate express instance
 const app = express();

@@ -7,13 +7,13 @@ class Database {
     adapter = undefined;
     db = undefined;
 
-    constructor() {``
-        console.log('Database initiated;');
-
-        // Sync database locally for demo purposes
+    constructor() {
+        // Sync database locally
         this.adapter = new FileSync("db.json");
         this.db = low(this.adapter);
+    }
 
+    start() {
         // Set some defaults (required if your JSON file is empty)
         this.db.defaults({ torrents: [], user: {} }).write();
     }
