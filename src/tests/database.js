@@ -1,10 +1,12 @@
 const { to } = require('await-to-js');
 const DatabaseService = require('../utils/db');
 const Promise = require('bluebird');
+const path = require('path');
 const test = require('ava');
 const fs = require('fs');
 
 fs.readFileAsync = Promise.promisify(fs.readFile);
+fs.unlinkAsync = Promise.promisify(fs.unlink);
 
 test.before((t) => {
     const db = new DatabaseService().getInstance();
@@ -28,8 +30,9 @@ test("database should contain predefined data", async t => {
     t.deepEqual(data, schema);
 })
 
-test.after( t => {
-
+test.after(async t => {
+    const [err] = await to(fs.unlinkAsync(path.join(__dirname, '../../db.json')));
+    if (err) console.error(err);
 });
 
 
