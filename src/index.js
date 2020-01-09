@@ -3,8 +3,8 @@ const express = require("express");
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 // Initiate DB
-const adapter = new FileSync('db.json')
-const db = low(adapter)
+const adapter = new FileSync('db.json');
+const db = low(adapter);
 
 // Route imports
 const torrentController = require("./routes/torrent");

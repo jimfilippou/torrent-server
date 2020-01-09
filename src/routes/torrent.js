@@ -4,7 +4,7 @@ const WebTorrent = require('webtorrent');
 const FileSync = require('lowdb/adapters/FileSync');
 const asyncHandler = require('express-async-handler');
 const shortid = require('shortid');
-const low = require('lowdb')
+const low = require('lowdb');
 // Create the torrent client
 const client = new WebTorrent();
 
@@ -12,8 +12,8 @@ const client = new WebTorrent();
 promisify(client.add);
 
 //accessing the db
-const adapter = new FileSync('db.json')
-const db = low(adapter)
+const adapter = new FileSync('db.json');
+const db = low(adapter);
 
 // Initiate the router
 const router = express.Router();
@@ -30,16 +30,25 @@ router.post("/download", asyncHandler(async function (req, res, next) {
     });
 
     torrent.on("done", () => {
+
+        //selecting mp4 file
+        let file = torrent.files.find(function (file) {
+            return file.name.endsWith('.mp4');
+          });
         // save on db.json
+        const torrentId = shortid.generate();
         db.get('torrents')
-        .push({id:shortid.generate(), 
+        .push({id: torrentId, 
             name : torrent.name, 
-            size : torrent.size, 
-            path : torrent.path})
+            size : torrent.length, 
+            path : torrent.path,
+            mp4_file: file.path})
         .write();
-        res.json(db.get('torrents'));
+        res.json(db.get('torrents')
+        .find({id:torrentId})
+        .value());
         res.end();
-    })
+    });
 
 }));
 
