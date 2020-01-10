@@ -5,7 +5,7 @@ const asyncHandler = require('express-async-handler');
 const shortid = require('shortid');
 const Database = require('../utils/db');
 
-const { db } = new Database().getInstance();
+const  db  = new Database().getInstance();
 
 // Create the torrent client
 const client = new WebTorrent();
@@ -16,6 +16,7 @@ promisify(client.add);
 // Initiate the router
 const router = express.Router();
 
+//client posts magnet, torrent is added and metadata are sent
 router.post("/download", asyncHandler(async function (req, res, next) {
 
     const { magnet } = req.body;
@@ -28,7 +29,6 @@ router.post("/download", asyncHandler(async function (req, res, next) {
         let file = torrent.files.find(function (file) {
             return file.name.endsWith('.mp4');
         });
-
         // save on db.json
         const torrentId = shortid.generate();
         const t = {
@@ -36,7 +36,7 @@ router.post("/download", asyncHandler(async function (req, res, next) {
             name: torrent.name,
             size: torrent.length,
             path: torrent.path,
-            mp4_file: file.path
+            mp4_file: file.path,
         };
 
         db.addTorrent(t);
@@ -46,5 +46,4 @@ router.post("/download", asyncHandler(async function (req, res, next) {
     });
 
 }));
-
 module.exports = router;

@@ -28,6 +28,9 @@ class Database {
         return this.db.get('torrents').read();
     }
 
+    getTorrent(id){
+        return this.db.get('torrents').find({id:id}).value();
+    }
 }
 
 class Singleton {
