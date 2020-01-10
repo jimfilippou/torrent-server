@@ -4,6 +4,7 @@ db.json
 .vscode/
 .nyc_output
 coverage
+loot/
 
 # Logs
 logs

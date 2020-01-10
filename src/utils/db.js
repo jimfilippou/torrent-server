@@ -25,7 +25,7 @@ class Database {
     }
 
     getTorrents() {
-        return this.db.get('torrents').read();
+        return this.db.get('torrents').value();
     }
 
     getTorrent(id){

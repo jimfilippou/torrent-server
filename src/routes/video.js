@@ -1,153 +1,129 @@
-const fs = require('fs');
-const util = require('util');
-const express = require('express');
 const asyncHandler = require('express-async-handler');
-var path = require('path');
 const Database = require('../utils/db');
+const Promise = require('bluebird');
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
 
-util.promisify(fs.stat);
-const  db  = new Database().getInstance();
+fs.statAsync = Promise.promisify(fs.stat);
+
+const db = new Database().getInstance();
 const router = express.Router();
 
 router.get('/stream/:hash', asyncHandler(async (req, res, next) => {
-	
-	// const file = res.locals.filePath;
-	// vres to path apo ti vash
+
+	// Find torrent by hash
 	const torrent = db.getTorrent(req.params.hash);
-	const file = path.join(torrent.path,torrent.mp4_file);
-	console.log(file);
-	fs.stat(file, function(err, stats) {
+
+	// Create file path variable
+	const file = path.join(torrent.path, torrent.mp4_file);
+
+	// Get information about the file
+	const stats = await fs.statAsync(file);
+
+	//	2.	Save the range the browser is asking for in a clear and
+	//		reusable variable
+	//
+	//		The range tells us what part of the file the browser wants
+	//		in bytes.
+	//
+	//		EXAMPLE: bytes=65534-33357823
+	//
+
+	let range = req.headers.range;
+	//
+	//	3.	Make sure the browser ask for a range to be sent.
+	//
+	if (!range) {
+		//
+		// 	1.	Create the error
+		//
+		let err = new Error('Wrong range');
+		err.status = 416;
 
 		//
-		//	1.	If there was an error reading the file stats we inform the
-		//		browser of what actual happened
+		//	->	Send the error and stop the request.
 		//
-		if(err)
-		{
-			//
-			//	1.	Check if the file exists
-			//
-			if(err.code === 'ENOENT')
-			{
-				//
-				// 	->	404 Error if file not found
-				//
-				return res.sendStatus(404);
-			}
+		return next(err);
+	}
 
-			//
-			//	2.	IN any other case, just output the full error
-			//
-			return next(err)
-		}
+	//
+	//	4.	Convert the string range in to an array for easy use.
+	//
+	let positions = range.replace(/bytes=/, '').split('-');
 
-		//
-		//	2.	Save the range the browser is asking for in a clear and
-		//		reusable variable
-		//
-		//		The range tells us what part of the file the browser wants
-		//		in bytes.
-		//
-		//		EXAMPLE: bytes=65534-33357823
-		//
-		let range = req.headers.range;
-		console.log(range);
-		//
-		//	3.	Make sure the browser ask for a range to be sent.
-		//
-		if(!range)
-		{
-			//
-			// 	1.	Create the error
-			//
-			let err = new Error('Wrong range');
-				err.status = 416;
+	//
+	//	5.	Convert the start value in to an integer
+	//
+	let start = parseInt(positions[0], 10);
 
-			//
-			//	->	Send the error and stop the request.
-			//
-			return next(err);
-		}
+	//
+	//	6.	Save the total file size in to a clear variable
+	//
+	let file_size = stats.size;
 
-		//
-		//	4.	Convert the string range in to an array for easy use.
-		//
-		let positions = range.replace(/bytes=/, '').split('-');
+	//
+	//	7.	IF 		the end parameter is present we convert it in to an
+	//				integer, the same way we did the start position
+	//
+	//		ELSE 	We use the file_size variable as the last part to be
+	//				sent.
+	//
+	let end = positions[1] ? parseInt(positions[1], 10) : file_size - 1;
 
-		//
-		//	5.	Convert the start value in to an integer
-		//
-		let start = parseInt(positions[0], 10);
+	//
+	//	8.	Calculate the amount of bits will be sent back to the
+	//		browser.
+	//
+	let chunksize = (end - start) + 1;
 
-		//
-		//	6.	Save the total file size in to a clear variable
-		//
-		let file_size = stats.size;
+	//
+	//	9.	Create the header for the video tag so it knows what is
+	//		receiving.
+	//
+	let head = {
+		'Content-Range': 'bytes ' + start + '-' + end + '/' + file_size,
+		'Accept-Ranges': 'bytes',
+		'Content-Length': chunksize,
+		'Content-Type': 'video/mp4'
+	}
 
-		//
-		//	7.	IF 		the end parameter is present we convert it in to an
-		//				integer, the same way we did the start position
-		//
-		//		ELSE 	We use the file_size variable as the last part to be
-		//				sent.
-		//
-		let end = positions[1] ? parseInt(positions[1], 10) : file_size - 1;
+	//
+	//	10.	Send the custom header
+	//
+	res.writeHead(206, head);
 
-		//
-		//	8.	Calculate the amount of bits will be sent back to the
-		//		browser.
-		//
-		let chunksize = (end - start) + 1;
+	//
+	//	11.	Create the createReadStream option object so createReadStream
+	//		knows how much data it should be read from the file.
+	//
+	let stream_position = {
+		start: start,
+		end: end
+	}
 
-		//
-		//	9.	Create the header for the video tag so it knows what is
-		//		receiving.
-		//
-		let head = {
-			'Content-Range': 'bytes ' + start + '-' + end + '/' + file_size,
-			'Accept-Ranges': 'bytes',
-			'Content-Length': chunksize,
-			'Content-Type': 'video/mp4'
-		}
+	//
+	//	12.	Create a stream chunk based on what the browser asked us for
+	//
+	let stream = fs.createReadStream(file, stream_position)
 
-		//
-		//	10.	Send the custom header
-		//
-		res.writeHead(206, head);
+	//
+	//	13.	Once the stream is open, we pipe the data through the response
+	//		object.
+	//
+	stream.on('open', function () {
 
-		//
-		//	11.	Create the createReadStream option object so createReadStream
-		//		knows how much data it should be read from the file.
-		//
-		let stream_position = {
-			start: start,
-			end: end
-		}
+		stream.pipe(res);
 
-		//
-		//	12.	Create a stream chunk based on what the browser asked us for
-		//
-		let stream = fs.createReadStream(file, stream_position)
+	})
 
-		//
-		//	13.	Once the stream is open, we pipe the data through the response
-		//		object.
-		//
-		stream.on('open', function() {
+	//
+	//	->	If there was an error while opening a stream we stop the
+	//		request and display it.
+	//
+	stream.on('error', function (err) {
 
-			stream.pipe(res);
-
-		})
-
-		//
-		//	->	If there was an error while opening a stream we stop the
-		//		request and display it.
-		//
-		stream.on('error', function(err) {
-
-			return next(err);
-
-		});
+		return next(err);
 
 	});
 

@@ -1,5 +1,6 @@
 const express = require('express');
-const { promisify } = require("util");
+const { to } = require('await-to-js');
+const Promise = require("bluebird");
 const WebTorrent = require('webtorrent');
 const asyncHandler = require('express-async-handler');
 const shortid = require('shortid');
@@ -11,17 +12,23 @@ const  db  = new Database().getInstance();
 const client = new WebTorrent();
 
 // Make promises
-promisify(client.add);
+client.addAsync = Promise.promisify(client.add);
 
 // Initiate the router
 const router = express.Router();
 
 //client posts magnet, torrent is added and metadata are sent
-router.post("/download", asyncHandler(async function (req, res, next) {
+router.post("/download", async function (req, res) {
 
     const { magnet } = req.body;
 
-    const torrent = await client.add(magnet, { path: `${__dirname}/loot` });
+    const [err, torrent] = await to(client.addAsync(magnet, { path: `${__dirname}/loot` }));
+    
+    if (err) {
+        const firstTorrent = db.getTorrents()[0];
+        res.json(firstTorrent);
+        return;
+    }
 
     torrent.on("done", () => {
 
@@ -45,5 +52,5 @@ router.post("/download", asyncHandler(async function (req, res, next) {
         res.end();
     });
 
-}));
+});
 module.exports = router;
