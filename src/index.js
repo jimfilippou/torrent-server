@@ -1,5 +1,6 @@
 const DatabaseService = require('./utils/db');
 const express = require("express");
+const cors = require('cors')
 
 // Routes
 const torrentController = require("./routes/torrent");
@@ -14,6 +15,7 @@ const app = express();
 const port = 3000;
 
 // Use middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
