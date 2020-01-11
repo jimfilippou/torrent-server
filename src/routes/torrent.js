@@ -4,8 +4,6 @@ const shortid = require('shortid');
 const Database = require('../utils/db');
 const WebTorrent = require('webtorrent');
 
-
-
 const db = new Database().getInstance();
 
 // Initiate the router

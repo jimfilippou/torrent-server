@@ -1,5 +1,5 @@
-const { to } = require('await-to-js');
 const DatabaseService = require('../utils/db');
+const { to } = require('await-to-js');
 const Promise = require('bluebird');
 const path = require('path');
 const test = require('ava');
