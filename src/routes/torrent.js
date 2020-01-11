@@ -1,89 +1,64 @@
 const express = require('express');
-const { to } = require('await-to-js');
-const Promise = require("bluebird");
-const WebTorrent = require('webtorrent');
-const asyncHandler = require('express-async-handler');
+const path = require('path');
 const shortid = require('shortid');
 const Database = require('../utils/db');
+const WebTorrent = require('webtorrent');
 
-const  db  = new Database().getInstance();
 
-// Create the torrent client
-const client = new WebTorrent();
 
-// Make promises
-client.addAsync = Promise.promisify(client.add);
+const db = new Database().getInstance();
 
 // Initiate the router
 const router = express.Router();
 
 //client posts magnet, torrent is added and metadata are sent
-router.post("/download", async function (req, res) {
+router.post("/download", async (req, res) => {
+
+    const client = new WebTorrent();
+
+    client.on("error", (err) => {
+        err instanceof Error ? res.json({ err: err.message }) : res.json({ err });
+        res.end();
+    })
 
     const { magnet } = req.body;
-    let existingTorrent = db.getTorrentByMagnet(magnet);
-    console.log(existingTorrent);
-    if(existingTorrent){
-        console.log("torrent exists");
-        res.json(existingTorrent);
-        return;
-    }
-    const [err, torrent] = await to(client.addAsync(magnet, { path: `${__dirname}/loot` }));
-    
-    if (err) {
-        console.log("err");
-        let errTorrent = db.getTorrentByMagnet(err.magnetURI);
-        console.log("new torrent");
-        //selecting mp4 file
-        let file = err.files.find(function (file) {
-            return file.name.endsWith('.mp4');
+    const pathToSave = path.join(__dirname, '../../loot');
+
+    client.add(magnet, { path: pathToSave }, (torrent) => {
+
+        torrent.on("done", () => {
+
+            console.info("Torrent downloaded successfully!");
+
+            // Find mp4 file
+            const file = torrent.files.find(f => f.name.endsWith('.mp4'))
+
+            // Find subtitles
+            const subs = torrent.files.filter(f => f.name.endsWith('.srt')).map(s => s.name)
+
+            const t = {
+                id: shortid.generate(),
+                magnet: magnet,
+                name: torrent.name,
+                size: torrent.length,
+                path: torrent.path,
+                mp4_file: file.path,
+                subs: subs
+            };
+
+            const existingTorrent = db.getTorrentByMagnet(t.magnet);
+
+            if (!existingTorrent) {
+                db.addTorrent(t);
+                res.json(t);
+            } else {
+                res.json(existingTorrent)
+            }
+
+            res.end();
         });
 
-        //selecting subs
-        let subtitles = err.files.filter(function(file){
-            return file.name.endsWith('.srt');
-        });
-        if(Array.isArray(subtitles) && subtitles.length){
-            subtitleEntries = subtitles.map(({ name }) => name);
-        }else{
-            subtitleEntries = [];
-        }
-        const torrentId = shortid.generate();
-        const t = {
-            id: torrentId,
-            name: err.name,
-            size: err.length,
-            path: err.path,
-            mp4_file: file.path,
-            subtitles: subtitleEntries,
-            magnet:err.magnetURI
-        }
-        db.addTorrent(t);
-        res.json(t);
-        res.end();
-    }
-
-    torrent.on("done", () => {
-        console.log("in done");
-        //selecting mp4 file
-        let file = torrent.files.find(function (file) {
-            return file.name.endsWith('.mp4');
-        });
-        // save on db.json
-        const torrentId = shortid.generate();
-        const t = {
-            id: torrentId,
-            name: torrent.name,
-            size: torrent.length,
-            path: torrent.path,
-            mp4_file: file.path,
-        };
-
-        db.addTorrent(t);
-        
-        res.json(t);
-        res.end();
-    });
+    })
 
 });
 module.exports = router;

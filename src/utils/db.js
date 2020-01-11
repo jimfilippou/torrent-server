@@ -19,7 +19,6 @@ class Database {
     }
 
     addTorrent(torrent) {
-		console.log("wrote");
         this.db.get('torrents')
             .push(torrent)
             .write();
