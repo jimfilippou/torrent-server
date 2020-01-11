@@ -19,6 +19,7 @@ class Database {
     }
 
     addTorrent(torrent) {
+		console.log("wrote");
         this.db.get('torrents')
             .push(torrent)
             .write();
@@ -30,6 +31,9 @@ class Database {
 
     getTorrent(id){
         return this.db.get('torrents').find({id:id}).value();
+    }
+    getTorrentByMagnet(magnet){
+        return this.db.get('torrents').find({magnet:magnet}).value();
     }
 }
 
