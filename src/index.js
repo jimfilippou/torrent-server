@@ -19,11 +19,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// @TODO Remove the following lines
-app.engine('pug', require('pug').__express);
-app.set('views', __dirname+'\\views');
-app.set('view engine', 'pug');
-
 // Add custom controllers to handlers
 app.use('/torrent', torrentController);
 app.use('/video', videoController);

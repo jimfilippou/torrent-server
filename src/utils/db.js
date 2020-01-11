@@ -31,6 +31,9 @@ class Database {
     getTorrent(id){
         return this.db.get('torrents').find({id:id}).value();
     }
+    getTorrentByMagnet(magnet){
+        return this.db.get('torrents').find({magnet:magnet}).value();
+    }
 }
 
 class Singleton {
